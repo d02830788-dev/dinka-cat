@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.net.URL;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -35,11 +36,16 @@ public class Main {
         frame.setMinimumSize(size);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        ImageIcon originalIcon = new ImageIcon("/Users/ajdamir/Documents/Codes/tmp/heart/res/heart.png");
-        Image originalImage = originalIcon.getImage();
+        URL imgURL = Main.class.getResource("/res/heart.png");
 
-        int baseWidth = originalIcon.getIconWidth();
-        int baseHeight = originalIcon.getIconHeight();
+        ImageIcon originalIcon = (imgURL != null) ? new ImageIcon(imgURL) : new ImageIcon();
+        final Image originalImage = originalIcon.getImage();
+
+        int w = originalIcon.getIconWidth() > 0 ? originalIcon.getIconWidth() : 200;
+        int h = originalIcon.getIconHeight() > 0 ? originalIcon.getIconHeight() : 200;
+
+        final int baseWidth = w;
+        final int baseHeight = h;
 
         JLabel label = new JLabel(originalIcon);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -123,17 +129,17 @@ public class Main {
             int newWidth = (int) (baseWidth * scale);
             int newHeight = (int) (baseHeight * scale);
 
-            if (newWidth > 0 && newHeight > 0) {
+            if (newWidth > 0 && newHeight > 0 && originalImage != null && originalIcon.getIconWidth() > 0) {
                 Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
                 label.setIcon(new ImageIcon(scaledImage));
             }
 
             catBlinkCounter++;
-            if (!catBlinking && catBlinkCounter >= 130) {
+            if (!catBlinking && catBlinkCounter >= 45) {
                 catBlinking = true;
                 catCanvas.repaint();
                 catBlinkCounter = 0;
-            } else if (catBlinking && catBlinkCounter >= 7) {
+            } else if (catBlinking && catBlinkCounter >= 6) {
                 catBlinking = false;
                 catCanvas.repaint();
                 catBlinkCounter = 0;
