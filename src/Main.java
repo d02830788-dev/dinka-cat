@@ -4,14 +4,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
-import java.net.URL;
+import java.awt.geom.GeneralPath;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -24,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Для моей малышки");
-        Dimension size = new Dimension(700, 800);
+        Dimension size = new Dimension(700, 850);
 
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -36,24 +33,44 @@ public class Main {
         frame.setMinimumSize(size);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        URL imgURL = Main.class.getResource("/res/heart.png");
-
-        ImageIcon originalIcon = (imgURL != null) ? new ImageIcon(imgURL) : new ImageIcon();
-        final Image originalImage = originalIcon.getImage();
-
-        int w = originalIcon.getIconWidth() > 0 ? originalIcon.getIconWidth() : 200;
-        int h = originalIcon.getIconHeight() > 0 ? originalIcon.getIconHeight() : 200;
-
-        final int baseWidth = w;
-        final int baseHeight = h;
-
-        JLabel label = new JLabel(originalIcon);
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel loveLabel = new JLabel("Я тебя люблю, Малышка!");
+        javax.swing.JLabel loveLabel = new javax.swing.JLabel("Я тебя люблю, Малышка!");
         loveLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         loveLabel.setFont(new Font("Georgia", Font.BOLD, 36));
         loveLabel.setForeground(new Color(225, 40, 40));
+
+        JPanel heartCanvas = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                g2.setColor(new Color(230, 40, 40));
+
+                int x = getWidth() / 2;
+                int y = getHeight() / 2 - 20;
+
+                double s = scale * 7.5;
+
+                GeneralPath path = new GeneralPath();
+
+                double xStart = x;
+                double yStart = y + 3 * s;
+                path.moveTo(xStart, yStart);
+
+                path.curveTo(x - 2 * s, y - 9 * s, x - 15 * s, y - 11 * s, x - 15 * s, y - 2 * s);
+                path.curveTo(x - 15 * s, y + 6 * s, x - 5 * s, y + 13 * s, x, y + 22 * s);
+                path.curveTo(x + 5 * s, y + 13 * s, x + 15 * s, y + 6 * s, x + 15 * s, y - 2 * s);
+                path.curveTo(x + 15 * s, y - 11 * s, x + 2 * s, y - 9 * s, xStart, yStart);
+
+                path.closePath();
+                g2.fill(path);
+            }
+        };
+        heartCanvas.setBackground(Color.WHITE);
+        heartCanvas.setMaximumSize(new Dimension(700, 400));
+        heartCanvas.setPreferredSize(new Dimension(700, 400));
+        heartCanvas.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel catCanvas = new JPanel() {
             @Override
@@ -103,9 +120,9 @@ public class Main {
 
         panel.add(Box.createVerticalGlue());
         panel.add(loveLabel);
-        panel.add(Box.createRigidArea(new Dimension(0, 40)));
-        panel.add(label);
-        panel.add(Box.createRigidArea(new Dimension(0, 30)));
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        panel.add(heartCanvas);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(catCanvas);
         panel.add(Box.createVerticalGlue());
 
@@ -126,13 +143,7 @@ public class Main {
                 }
             }
 
-            int newWidth = (int) (baseWidth * scale);
-            int newHeight = (int) (baseHeight * scale);
-
-            if (newWidth > 0 && newHeight > 0 && originalImage != null && originalIcon.getIconWidth() > 0) {
-                Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                label.setIcon(new ImageIcon(scaledImage));
-            }
+            heartCanvas.repaint();
 
             catBlinkCounter++;
             if (!catBlinking && catBlinkCounter >= 45) {
